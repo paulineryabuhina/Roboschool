@@ -1146,6 +1146,13 @@ body {
   color: rgba(40, 41, 68, 0.6980392157);
   padding-left: 10px;
 }
+.form__error {
+  font-family: Jost;
+  font-size: 12px;
+  font-weight: 400;
+  color: #fff;
+  padding: 10px;
+}
 .form__send-button {
   position: relative;
   overflow: hidden;

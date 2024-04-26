@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="./img/logo.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;600;700&display=swap" rel="stylesheet">
@@ -265,11 +266,15 @@
                         со скидкой 10%</h3>
                         <p class="form__description">Акция действительна до 10 марта 2022 года</p>
                     </div>
-                    <form class="form__send" id="form" action="/apply/" method="POST">
-                        <input class="form__field" type="text" name="fname" placeholder="Имя"><br>
-                        <input class="form__field" type="text" name="fnum" placeholder="Телефон"><br>
-                        <input class="form__field" type="text" name="femail" placeholder="Почта"><br>
+                    <form class="form__send" id="form" onsubmit="submitForm(event)">
+                        <input class="form__field" id="name" type="text" name=name" placeholder="Имя"><br>
+                        <span class="form__error" data-for="name"></span>
+                        <input class="form__field" id="num" type="text" name="num" placeholder="Телефон"><br>
+                        <span class="form__error" data-for="num"></span>
+                        <input class="form__field" id="email" type="text" name="email" placeholder="Почта"><br>
+                        <span class="form__error" data-for="email"></span>
                         <button class="form__send-button" type="submit">Оформить заявку</button>
+                        <div class="form__send-result"></div>
                     </form>
                 </div>
             </div>

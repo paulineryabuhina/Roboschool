@@ -58,36 +58,107 @@ for (let smoothLink of smoothLinks) {
     });
 }
 
-
 const clearFields = () => {
-    document.querySelector("#fname").value = "";
-    document.querySelector("#fnum").value = "";
-    document.querySelector("#femail").value = "";
+    document.querySelector("#name").value = "";
+    document.querySelector("#num").value = "";
+    document.querySelector("#email").value = "";
 };
 
-const sendForm = () => {
-    const form = document.getElementById('form');
+async function submitForm(event) {
+    event.preventDefault();
+    const form = event.target;
+    const formButton = document.querySelector('.form__send-button');
+    const formSendResult = document.querySelector('.form__send-result');
+    clearFields();
 
-    form.addEventListener('submit', event => {
-        event.preventDefault();
-        const formData = new FormData(form);
-        fetch('https://fake-server.com/submit', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('Form submitted successfully!');
-                clearFields();
-            } else {
-                alert('Error submitting form. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        });
+    const formData = new FormData(form);
+    const formDataObject = {};
+
+    formData.forEach((value, key) => {
+        formDataObject[key] = value.trim().replace(/\s+/g, ' ');
+    })
+
+    const validationErrors = validateForm(formDataObject);
+
+    displayErrors(validationErrors);
+    if (validationErrors.length > 0) return;
+
+    sendFormData(form, formButton, formSendResult, formDataObject);
+}
+
+function displayErrors(errors) {
+    const errorElements = document.querySelectorAll('.form__error');
+    errorElements.forEach((errorElement) => {
+        errorElement.textContent = '';
+    });
+
+    if(errors.length < 1) return;
+
+    errors.forEach((error) => {
+        const { field, message } = error;
+        const errorElement = document.querySelector(`[data-for="${field}"]`);
+        errorElement.textContent = message;
     });
 }
 
-sendForm();
+//валидация формы
+function validateForm(formData) {
+    const { name, email, num} = formData;
+
+    const phoneRegex = /^\+[0-9]{5,15}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const errors = [];
+
+    if (!name) {
+        errors.push({ field: 'name', message: 'Пожалуйста, введите ваше имя.' });
+    } 
+
+    if (!num) {
+        errors.push({ field: 'num', message: 'Пожалуйста, введите номер телефона.' });
+    } else if (!phoneRegex.test(num)) {
+        errors.push({ field: 'num', message: 'Пожалуйста, введите корректный номер телефона.' });
+    }
+
+    if (!email) {
+        errors.push({ field: 'email', message: 'Пожалуйста, введите адрес электронной почты.' });
+    } else if (!emailRegex.test(email) || (email.length < 5 || email.length > 100)) {
+        errors.push({ field: 'email', message: 'Пожалуйста, введите корректный адрес электронной почты.' });
+    }
+    return errors;
+}
+
+async function sendFormData(form, formBtn, formSendResult, formDataObject) {
+    try {
+        formBtn.textContent = 'Loading...';
+        formBtn.disabled = true;
+
+        const response = await fetch('http://localhost:5000/send-email', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formDataObject),
+        });
+
+        if (response.ok) {
+            formSendResult.textContent = 'Спасибо за ваше сообщение! Мы свяжемся с вами в ближайшее время.';
+            form.reset();
+        } else if (response.status === 422) {
+            const errors = await response.json();
+            console.log(errors);
+            throw new Error('Ошибка валидации данных');
+        } else {
+            throw new Error(response.statusText);
+        }
+
+    } catch (error) {
+        console.error(error.message);
+        formSendResult.textContent = 'Письмо не отправлено! Попробуйте позже.';
+        formSendResult.style.color = 'red';
+
+    } finally {
+        formBtn.textContent = 'Отправить';
+        formBtn.disabled = false;
+    }
+}

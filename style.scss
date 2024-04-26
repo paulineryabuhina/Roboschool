@@ -1189,6 +1189,13 @@ body {
         color: #282944b2;
         padding-left: 10px;
     }
+    &__error{
+        font-family: Jost;
+        font-size: 12px;
+        font-weight: 400;
+        color: #fff;
+        padding: 10px;
+    }
     &__send-button {
         position: relative;
         overflow: hidden;
